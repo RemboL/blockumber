@@ -12,11 +12,11 @@ Most of developers, when they are first introduced to [behavior-driven developme
 
 Then most of developers after few months or years of practice with BDD will tell you that it in most cases won't work like that.
 
-Usual reason is that business is usually either not elastic enough to understand the principles of step definitions or is annoyed by limitations of those definitions that are often hidden under provided scenario editor (though I had the pleasure of working with Product Owner that lied in the sweet spot between - but that might be due to the fact of her IT education).
+In 90% of situations reason is that business is either not elastic enough to understand the principles behind step definitions or is annoyed by the limitations of those definitions that are often hidden under provided scenario editor (though I had the pleasure of working with Product Owner that lied in the sweet spot between - but that might be due to the fact of her IT education).
 
 I'll give you an example.
 
-Product owner provides you with a scenario that they want to test:
+Product owner provides you with a scenario that he wants to test:
 ```
 given a basket with 10 cucumbers
 when I take 4 cucumbers
@@ -31,7 +31,7 @@ Then(~'I have (\\d+) cucumbers left in the basket') { ... }
 ```
 All is peachy, devs are happy because they automated the oh-so-important cucumber/basket logic, PO's happy because he can now in his [editor] create scenarios that will run automatically.
 
-But the PO starts to think about other scenarios:
+But then PO starts to think about other scenarios:
 ```
 given a basket with 10 cucumbers
 when I take 10 cucumbers
@@ -48,11 +48,11 @@ Now two things can happen:
 * either product owner notices that tests are red because he is not hitting exact step expressions and he gets angry at limitations of the tools provided
 * or product owner notices that tests are red and he gets angry because oh-so-important functionality doesn't work as it should
 
-Either way, this usually means that devs have more work with debugging, coding additional stepdefs, etc., and (hopefully) at some point business notices that this work setup where they're trying to write scenarios is not cost effective.
+Either way, this usually means that devs have more work with [greening up the pipelines] - debugging, coding additional stepdefs, etc., and (hopefully) at some point business notices that this work setup where they write scenarios is not cost effective.
 
-But this course of action is the result of simple fact - PO can do in the editor much more than the stepdefs allow.
+But this course of action is the result of simple fact - business can do in the text editor much more than the stepdefs allow.
 
-That's basically the reason behind - to provide the editor that allows no more and no less than stepdefs allow.
+That's basically the reason behind this little project - to provide the editor that allows no more and no less than stepdefs allow (and also bright colors of blockly blocks should draw in the simple business minds).
 
 ## How it works?
 
@@ -87,4 +87,5 @@ ToDos:
 [blockly]: https://developers.google.com/blockly
 [behavior-driven development]: https://en.wikipedia.org/wiki/Behavior-driven_development
 [editor]: https://en.wikipedia.org/wiki/Microsoft_Notepad
+[greening up the pipelines]: http://www.liquid-roof.com/images/painting2.jpg
 [so]: https://github.com/RemboL/blockumber/blob/master/librarian-at/src/main/java/pl/rembol/librarian/at/Application.java
