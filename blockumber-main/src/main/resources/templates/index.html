@@ -96,7 +96,7 @@
             var code = Blockly.JavaScript.workspaceToCode(workspace);
 
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/run", true);
+            xhr.open("POST", "blockumber/run", true);
             xhr.onreadystatechange = function () {
                 document.getElementById('scenarioOutput').innerHTML = this.responseText;
             };

@@ -1,9 +1,13 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
+ext {
+    springBootVersion = '1.3.3.RELEASE'
+    thymeleafVersion = '2.1.4.RELEASE'
 }
 
 dependencies {
-	testCompile("junit:junit:4.12")
+    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    compile "org.thymeleaf:thymeleaf-spring4:$thymeleafVersion"
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'info.cukes:cucumber-groovy:1.2.5'
+    testCompile 'junit:junit:4.12'
 }

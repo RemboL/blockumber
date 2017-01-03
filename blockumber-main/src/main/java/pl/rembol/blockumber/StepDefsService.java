@@ -1,4 +1,4 @@
-package pl.rembol.librarian.at;
+package pl.rembol.blockumber;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +22,7 @@ import cucumber.runtime.io.ResourceLoaderClassFinder;
 import cucumber.runtime.xstream.LocalizedXStreams;
 
 @Service
-public class StepDefsService {
+class StepDefsService {
 
     private static final Map<String, String> knownPatterns = new HashMap<>();
 
@@ -37,7 +37,7 @@ public class StepDefsService {
     private final List<Map<String, Object>> scenarioDefinitions = new ArrayList<>();
 
     @PostConstruct
-    public void findStepDefs() {
+    void findStepDefs() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         RuntimeGlue glue = new RuntimeGlue(new UndefinedStepsTracker(), new LocalizedXStreams(classLoader));
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
@@ -53,6 +53,7 @@ public class StepDefsService {
         stepDefinitions.stream().map(this::mapStepDefinition).forEach(this.stepDefinitions::add);
 
         this.scenarioDefinitions.add(createScenarioDefinition());
+        this.scenarioDefinitions.add(createFeatureDefinition());
 
         this.tagDefinitions.add(createTagDefinition("Given", 240));
         this.tagDefinitions.add(createTagDefinition("When", 210));
@@ -60,15 +61,15 @@ public class StepDefsService {
         this.tagDefinitions.add(createTagDefinition("And", 150));
     }
 
-    public List<Map<String, Object>> getStepDefs() {
+    List<Map<String, Object>> getStepDefs() {
         return stepDefinitions;
     }
 
-    public List<Map<String, Object>> getTagDefs() {
+    List<Map<String, Object>> getTagDefs() {
         return tagDefinitions;
     }
 
-    public List<Map<String, Object>> getScenarioDefs() {
+    List<Map<String, Object>> getScenarioDefs() {
         return scenarioDefinitions;
     }
 
@@ -101,6 +102,29 @@ public class StepDefsService {
         return blockDefinition;
     }
 
+    private Map<String, Object> createFeatureDefinition() {
+        Map<String, Object> featureDefinition = new HashMap<>();
+
+        featureDefinition.put("message0", "Feature: %1");
+
+        Map<String, String> nameDefinition = new HashMap<>();
+        nameDefinition.put("type", "field_input");
+        nameDefinition.put("name", "NAME");
+        nameDefinition.put("check", "string");
+        nameDefinition.put("text", "Name");
+        Map<String, String> bodyDefinition = new HashMap<>();
+        bodyDefinition.put("type", "input_statement");
+        bodyDefinition.put("name", "BODY");
+
+        featureDefinition.put("args0", Collections.singletonList(nameDefinition));
+        featureDefinition.put("message1", "%1");
+        featureDefinition.put("args1", Collections.singletonList(bodyDefinition));
+
+        featureDefinition.put("colour", 32);
+
+        return featureDefinition;
+    }
+
     private Map<String, Object> createScenarioDefinition() {
         Map<String, Object> scenarioDefinition = new HashMap<>();
 
@@ -118,6 +142,8 @@ public class StepDefsService {
         scenarioDefinition.put("args0", Collections.singletonList(nameDefinition));
         scenarioDefinition.put("message1", "%1");
         scenarioDefinition.put("args1", Collections.singletonList(bodyDefinition));
+        scenarioDefinition.put("nextStatement", "Action");
+        scenarioDefinition.put("previousStatement", "Action");
 
         scenarioDefinition.put("colour", 64);
 

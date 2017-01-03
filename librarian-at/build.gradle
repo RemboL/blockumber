@@ -11,17 +11,13 @@ buildscript {
 }
 
 dependencies {
+    compile project(':blockumber-main')
     compile 'org.codehaus.groovy:groovy-all:2.4.3'
-    compile 'org.springframework.boot:spring-boot-starter-actuator'
-    compile 'org.slf4j:slf4j-api:1.7.21'
-    compile 'org.springframework.boot:spring-boot-starter-web'
-    compile 'org.thymeleaf:thymeleaf-spring4'
-    compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
-    compile("org.codehaus.groovy:groovy-all:2.3.11")
     compile("info.cukes:cucumber-groovy:1.2.5")
     compile("io.rest-assured:rest-assured:3.0.1")
     testCompile("junit:junit:4.12")
 }
+
 configurations {
     cucumberRuntime {
         extendsFrom testRuntime

@@ -1,4 +1,4 @@
-package pl.rembol.librarian.at;
+package pl.rembol.blockumber;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,21 +13,21 @@ import org.thymeleaf.util.StringUtils;
 import cucumber.api.cli.Main;
 
 @RestController
-@RequestMapping("/run")
-public class RunController {
+@RequestMapping("/blockumber/run")
+class RunController {
 
     @RequestMapping(method = RequestMethod.POST)
-    public String post(@RequestBody String scenario) throws Throwable {
-        scenario = java.net.URLDecoder.decode(scenario, "UTF-8");
-        String feature = "Feature: test feature\n\n" + scenario;
-        System.out.println(feature);
+    String post(@RequestBody String feature) throws Throwable {
+        feature = java.net.URLDecoder.decode(feature, "UTF-8");
+        if (!feature.startsWith("Feature")) {
+            feature = "Feature: test feature\n\n" + feature;
+        }
         Path scenarioDirectory = Files.createTempDirectory("blockumber_testDir_");
 
         Path scenarioFile = Files.createFile(scenarioDirectory.resolve("test.feature"));
         Files.write(scenarioFile, feature.getBytes());
 
         Path reportTestFile = Files.createTempFile("blockumber_testReport_", ".txt");
-        System.out.println(reportTestFile.toAbsolutePath().toString());
 
         Main.run(new String[]{
                         "--plugin", "pretty:" + reportTestFile.toString(),
