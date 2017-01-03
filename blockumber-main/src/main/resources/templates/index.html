@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>HELLO</title>
+    <title>Blockumber</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css"/>
 </head>
 <body>
@@ -12,7 +12,7 @@
     <script src="/js/blockly/blocks_compressed.js"></script>
     <script src="/js/blockly/javascript_compressed.js"></script>
     <script src="/js/blockly/msg/js/en.js"></script>
-    <table id="blocklyTable">
+    <table>
         <tr>
             <td width="50%">
                 <div id="blocklyDiv" style="height: 480px; width: 800px;"></div>
@@ -23,13 +23,15 @@
         </tr>
     </table>
     <xml id="toolbox" style="display: none">
-        <th:block th:each="stepdef : ${stepdefs}"><block th:attr="type=${stepdef.message0}"/></th:block>
-        <th:block th:each="tagdef : ${tagdefs}">
-            <block th:attr="type=${tagdef.message0}"/>
-        </th:block>
-        <th:block th:each="scenariodef : ${scenariodefs}">
-            <block th:attr="type=${scenariodef.message0}"/>
-        </th:block>
+        <category name="Scenarios">
+            <th:block th:each="scenariodef : ${scenariodefs}"><block th:attr="type=${scenariodef.message0}"/></th:block>
+        </category>
+        <category name="Tags">
+            <th:block th:each="tagdef : ${tagdefs}"><block th:attr="type=${tagdef.message0}"/></th:block>
+        </category>
+        <category name="Steps">
+            <th:block th:each="stepdef : ${stepdefs}"><block th:attr="type=${stepdef.message0}"/></th:block>
+        </category>
     </xml>
     <script th:inline="javascript">
         var stepdefs = /*[[${stepdefs}]]*/ [];

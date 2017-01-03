@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import cucumber.runtime.Backend;
@@ -36,6 +37,9 @@ class StepDefsService {
 
     private final List<Map<String, Object>> scenarioDefinitions = new ArrayList<>();
 
+    @Value("${blockumber.glue:src/main/groovy}")
+    private String gluePath;
+
     @PostConstruct
     void findStepDefs() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -46,19 +50,19 @@ class StepDefsService {
         Collection<? extends Backend> backends = reflections.instantiateSubclasses(Backend.class, "cucumber.runtime",
                 new Class[]{ ResourceLoader.class }, new Object[]{ resourceLoader });
         for (Backend backend : backends) {
-            backend.loadGlue(glue, Collections.singletonList("src/main/groovy"));
+            backend.loadGlue(glue, Collections.singletonList(gluePath));
         }
         List<StepDefinition> stepDefinitions = new ArrayList<>();
         glue.reportStepDefinitions(stepDefinitions::add);
         stepDefinitions.stream().map(this::mapStepDefinition).forEach(this.stepDefinitions::add);
 
-        this.scenarioDefinitions.add(createScenarioDefinition());
-        this.scenarioDefinitions.add(createFeatureDefinition());
+        scenarioDefinitions.add(createFeatureDefinition());
+        scenarioDefinitions.add(createScenarioDefinition());
 
-        this.tagDefinitions.add(createTagDefinition("Given", 240));
-        this.tagDefinitions.add(createTagDefinition("When", 210));
-        this.tagDefinitions.add(createTagDefinition("Then", 180));
-        this.tagDefinitions.add(createTagDefinition("And", 150));
+        tagDefinitions.add(createTagDefinition("Given", 240));
+        tagDefinitions.add(createTagDefinition("When", 210));
+        tagDefinitions.add(createTagDefinition("Then", 180));
+        tagDefinitions.add(createTagDefinition("And", 150));
     }
 
     List<Map<String, Object>> getStepDefs() {

@@ -75,31 +75,31 @@ public class Application {
                                         BookRepository bookRepository) {
         borrowService.borrow(
                 clientRepository.findByName("Ann"),
-                bookRepository.findByName("On Basilisk Station")
+                bookRepository.findByName("On Basilisk Station").get(0)
         );
         borrowService.borrow(
                 clientRepository.findByName("Ann"),
-                bookRepository.findByName("The Honor of the Queen")
+                bookRepository.findByName("The Honor of the Queen").get(0)
         );
         borrowService.borrow(
                 clientRepository.findByName("Bill"),
-                bookRepository.findByName("War of Honor")
+                bookRepository.findByName("War of Honor").get(0)
         );
         borrowService.borrow(
                 clientRepository.findByName("Bill"),
-                bookRepository.findByName("Children of Dune")
+                bookRepository.findByName("Children of Dune").get(0)
         );
         borrowService.borrow(
                 clientRepository.findByName("Bill"),
-                bookRepository.findByName("God Emperor of Dune")
+                bookRepository.findByName("God Emperor of Dune").get(0)
         );
         borrowService.borrow(
                 clientRepository.findByName("Charlie"),
-                bookRepository.findByName("At All Costs")
+                bookRepository.findByName("At All Costs").get(0)
         );
         borrowService.borrow(
                 clientRepository.findByName("Charlie"),
-                bookRepository.findByName("Usagi Yojimbo, vol. 1")
+                bookRepository.findByName("Usagi Yojimbo, vol. 1").get(0)
         );
     }
 }

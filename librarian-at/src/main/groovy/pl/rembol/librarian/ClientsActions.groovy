@@ -28,4 +28,16 @@ class ClientsActions {
                 .jsonPath()
                 .getString("name")
     }
+
+    void clearAll() {
+        RestAssured
+                .delete("/clients")
+    }
+
+    int clientLimit(String name) {
+        RestAssured
+                .when()
+                .get("/clients/${clients[name]}/limit")
+                .body.asString().toInteger()
+    }
 }

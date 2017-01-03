@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,26 +17,17 @@ import cucumber.api.cli.Main;
 @RequestMapping("/blockumber/run")
 class RunController {
 
+    @Autowired
+    private RunService runService;
+
     @RequestMapping(method = RequestMethod.POST)
     String post(@RequestBody String feature) throws Throwable {
         feature = java.net.URLDecoder.decode(feature, "UTF-8");
         if (!feature.startsWith("Feature")) {
             feature = "Feature: test feature\n\n" + feature;
         }
-        Path scenarioDirectory = Files.createTempDirectory("blockumber_testDir_");
 
-        Path scenarioFile = Files.createFile(scenarioDirectory.resolve("test.feature"));
-        Files.write(scenarioFile, feature.getBytes());
-
-        Path reportTestFile = Files.createTempFile("blockumber_testReport_", ".txt");
-
-        Main.run(new String[]{
-                        "--plugin", "pretty:" + reportTestFile.toString(),
-                        "--glue", "src/main/groovy",
-                        scenarioDirectory.toString() },
-                Thread.currentThread().getContextClassLoader());
-
-        List<String> report = Files.readAllLines(reportTestFile);
+        List<String> report = runService.run(feature);
         return prettify(StringUtils.join(report, "<br>"));
     }
 

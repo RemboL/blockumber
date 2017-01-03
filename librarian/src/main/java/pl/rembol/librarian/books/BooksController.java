@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -30,7 +31,13 @@ public class BooksController {
 
     @RequestMapping(method = RequestMethod.POST)
     public Book createBook(@RequestBody CreateBookRequest createBookRequest) {
-        return bookRepository.save(new Book(createBookRequest.getName(), createBookRequest.getAuthor()));
+        Book book = bookRepository.findByNameAndAuthor(createBookRequest.getName(), createBookRequest.getAuthor());
+        if (book != null) {
+            book.added();
+            return bookRepository.save(book);
+        } else {
+            return bookRepository.save(new Book(createBookRequest.getName(), createBookRequest.getAuthor()));
+        }
     }
 
 
@@ -44,5 +51,14 @@ public class BooksController {
         return bookRepository.findByAuthor(author);
     }
 
+    @RequestMapping(path = "/byName/{name}", method = RequestMethod.GET)
+    public List<Book> getByName(@PathVariable(value = "name") String name) {
+        return bookRepository.findByName(name);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE)
+    public void clearAll() {
+        bookRepository.findAll().forEach(bookRepository::delete);
+    }
 
 }

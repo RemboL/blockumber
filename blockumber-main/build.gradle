@@ -8,6 +8,6 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
     compile "org.thymeleaf:thymeleaf-spring4:$thymeleafVersion"
     compile 'org.slf4j:slf4j-api:1.7.21'
-    compile 'info.cukes:cucumber-groovy:1.2.5'
+    compile 'info.cukes:cucumber-core:1.2.5'
     testCompile 'junit:junit:4.12'
 }

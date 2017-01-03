@@ -50,5 +50,7 @@ public class Book {
         available++;
     }
 
-
+    public void added() {
+        available++;
+    }
 }

@@ -37,4 +37,8 @@ public class BorrowService {
         bookRepository.save(book);
         borrowRepository.save(new Borrow(book, client));
     }
+
+    public void clearAll() {
+        borrowRepository.findAll().forEach(borrowRepository::delete);
+    }
 }
