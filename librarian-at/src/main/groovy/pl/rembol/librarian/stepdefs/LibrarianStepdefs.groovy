@@ -9,10 +9,10 @@ this.metaClass.mixin(EN)
 
 def clientActions = new ClientsActions()
 
-Given(~"a client named (.*)") { String name ->
+When(~"client is registered with name (.*)") { String name ->
     clientActions.createClient(name)
 }
 
-Then(~"client has name (.*)") { String name ->
+Then(~"newly registered client has name (.*)") { String name ->
     assert clientActions.findClient(name) == name
 }

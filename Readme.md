@@ -3,6 +3,6 @@ ToDos:
 * ~~figure out why it stops after finishing cucumber~~
 * ~~display report~~
 * ~~figure out how to determine step defs on runtime~~
-* convert stepdefs into blocks
-* run scenario created from blocks
-* display report nicely
+* ~~convert stepdefs into blocks~~
+* ~~run scenario created from blocks~~
+* ~~display report nicely~~

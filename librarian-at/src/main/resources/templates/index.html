@@ -10,14 +10,31 @@
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/blockly/blockly_compressed.js"></script>
     <script src="/js/blockly/blocks_compressed.js"></script>
+    <script src="/js/blockly/javascript_compressed.js"></script>
     <script src="/js/blockly/msg/js/en.js"></script>
-
-    <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+    <table id="blocklyTable">
+        <tr>
+            <td width="50%">
+                <div id="blocklyDiv" style="height: 480px; width: 800px;"></div>
+            </td>
+            <td>
+                <div id="scenarioOutput" style="font-family: 'Courier New'; vertical-align: top"></div>
+            </td>
+        </tr>
+    </table>
     <xml id="toolbox" style="display: none">
         <th:block th:each="stepdef : ${stepdefs}"><block th:attr="type=${stepdef.message0}"/></th:block>
+        <th:block th:each="tagdef : ${tagdefs}">
+            <block th:attr="type=${tagdef.message0}"/>
+        </th:block>
+        <th:block th:each="scenariodef : ${scenariodefs}">
+            <block th:attr="type=${scenariodef.message0}"/>
+        </th:block>
     </xml>
     <script th:inline="javascript">
         var stepdefs = /*[[${stepdefs}]]*/ [];
+        var tagdefs = /*[[${tagdefs}]]*/ [];
+        var scenariodefs = /*[[${scenariodefs}]]*/ [];
         /*<![CDATA[*/
         for (var i = 0; i < stepdefs.length; i++) {
             const stepdef = stepdefs[i];
@@ -26,10 +43,70 @@
                     this.jsonInit(stepdef);
                 }
             };
+            Blockly.JavaScript[stepdef.message0] = function (block) {
+                var text = stepdef.message0;
+                for (var i = 1; i <= block.inputList.length; i++) {
+                    text = text.replace('%' + i, block.getFieldValue('ARG' + i));
+                }
+                return [text, Blockly.JavaScript.ORDER_MEMBER];
+            };
         }
+
+        for (var i = 0; i < tagdefs.length; i++) {
+            const tagdef = tagdefs[i];
+            Blockly.Blocks[tagdef.message0] = {
+                init: function () {
+                    this.jsonInit(tagdef);
+                }
+            };
+            Blockly.JavaScript[tagdef.message0] = function (block) {
+                var text = tagdef.message0;
+                text = text.replace('%1', Blockly.JavaScript.valueToCode(block, 'BODY', Blockly.JavaScript.ORDER_NONE) || '');
+                return text + '\n';
+            };
+        }
+
+        for (var i = 0; i < scenariodefs.length; i++) {
+            const scenariodef = scenariodefs[i];
+            Blockly.Blocks[scenariodef.message0] = {
+                init: function () {
+                    this.jsonInit(scenariodef);
+                }
+            };
+            Blockly.JavaScript[scenariodef.message0] = function (block) {
+                var text = scenariodef.message0.replace('%1', block.getFieldValue('NAME'));
+                text += '\n\n';
+                text += Blockly.JavaScript.statementToCode(block, 'BODY', Blockly.JavaScript.ORDER_NONE) || '';
+                return text;
+            };
+        }
+
         var workspace = Blockly.inject('blocklyDiv',
                 {toolbox: document.getElementById('toolbox')});
+
+        function showCode() {
+            // Generate JavaScript code and display it.
+            Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+            var code = Blockly.JavaScript.workspaceToCode(workspace);
+            alert(code);
+        }
+        function runScenario() {
+            // Generate JavaScript code and display it.
+            Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+            var code = Blockly.JavaScript.workspaceToCode(workspace);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/run", true);
+            xhr.onreadystatechange = function () {
+                document.getElementById('scenarioOutput').innerHTML = this.responseText;
+            };
+            xhr.send(code);
+        }
         /*]]>*/
     </script>
+    <p>
+        <button onClick="showCode();">Show</button>
+        <button onClick="runScenario();">Run</button>
+    </p>
 </body>
 </html>

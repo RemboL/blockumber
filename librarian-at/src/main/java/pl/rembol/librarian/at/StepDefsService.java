@@ -30,7 +30,11 @@ public class StepDefsService {
         knownPatterns.put("(.*)", "String");
     }
 
-    private final List<Map<String, Object>> blockDefinitions = new ArrayList<>();
+    private final List<Map<String, Object>> stepDefinitions = new ArrayList<>();
+
+    private final List<Map<String, Object>> tagDefinitions = new ArrayList<>();
+
+    private final List<Map<String, Object>> scenarioDefinitions = new ArrayList<>();
 
     @PostConstruct
     public void findStepDefs() {
@@ -46,11 +50,26 @@ public class StepDefsService {
         }
         List<StepDefinition> stepDefinitions = new ArrayList<>();
         glue.reportStepDefinitions(stepDefinitions::add);
-        stepDefinitions.stream().map(this::mapStepDefinition).forEach(blockDefinitions::add);
+        stepDefinitions.stream().map(this::mapStepDefinition).forEach(this.stepDefinitions::add);
+
+        this.scenarioDefinitions.add(createScenarioDefinition());
+
+        this.tagDefinitions.add(createTagDefinition("Given", 240));
+        this.tagDefinitions.add(createTagDefinition("When", 210));
+        this.tagDefinitions.add(createTagDefinition("Then", 180));
+        this.tagDefinitions.add(createTagDefinition("And", 150));
     }
 
-    public List<Map<String, Object>> get() {
-        return blockDefinitions;
+    public List<Map<String, Object>> getStepDefs() {
+        return stepDefinitions;
+    }
+
+    public List<Map<String, Object>> getTagDefs() {
+        return tagDefinitions;
+    }
+
+    public List<Map<String, Object>> getScenarioDefs() {
+        return scenarioDefinitions;
     }
 
     private Map<String, Object> mapStepDefinition(StepDefinition stepDefinition) {
@@ -67,18 +86,58 @@ public class StepDefsService {
                     pattern = pattern.replace(argumentPattern, "%" + argumentCount);
                     Map<String, String> argumentDefinition = new HashMap<>();
                     argumentDefinition.put("type", "field_input");
-                    argumentDefinition.put("name", "arg" + argumentCount);
+                    argumentDefinition.put("name", "ARG" + argumentCount);
                     argumentDefinition.put("check", knownPatterns.get(argumentPattern));
                     argumentDefinition.put("text", "");
                     argumentDefiitions.add(argumentDefinition);
+                    break;
                 }
             }
         }
         blockDefinition.put("message0", pattern);
         blockDefinition.put("colour", 125);
         blockDefinition.put("args0", argumentDefiitions);
-        blockDefinition.put("nextStatement", "Action");
-        blockDefinition.put("previousStatement", "Action");
+        blockDefinition.put("output", "String");
         return blockDefinition;
+    }
+
+    private Map<String, Object> createScenarioDefinition() {
+        Map<String, Object> scenarioDefinition = new HashMap<>();
+
+        scenarioDefinition.put("message0", "Scenario: %1");
+
+        Map<String, String> nameDefinition = new HashMap<>();
+        nameDefinition.put("type", "field_input");
+        nameDefinition.put("name", "NAME");
+        nameDefinition.put("check", "string");
+        nameDefinition.put("text", "Name");
+        Map<String, String> bodyDefinition = new HashMap<>();
+        bodyDefinition.put("type", "input_statement");
+        bodyDefinition.put("name", "BODY");
+
+        scenarioDefinition.put("args0", Collections.singletonList(nameDefinition));
+        scenarioDefinition.put("message1", "%1");
+        scenarioDefinition.put("args1", Collections.singletonList(bodyDefinition));
+
+        scenarioDefinition.put("colour", 64);
+
+        return scenarioDefinition;
+    }
+
+    private Map<String, Object> createTagDefinition(String name, int colour) {
+        Map<String, Object> tagDefinition = new HashMap<>();
+
+        tagDefinition.put("message0", name + " %1");
+        tagDefinition.put("colour", colour);
+        tagDefinition.put("nextStatement", "Action");
+        tagDefinition.put("previousStatement", "Action");
+
+        Map<String, String> bodyDefinition = new HashMap<>();
+        bodyDefinition.put("type", "input_value");
+        bodyDefinition.put("name", "BODY");
+
+        tagDefinition.put("args0", Collections.singletonList(bodyDefinition));
+
+        return tagDefinition;
     }
 }
