@@ -17,9 +17,11 @@ Usual reason is that business is usually either not elastic enough to understand
 I'll give you an example.
 
 Product owner provides you with a scenario that they want to test:
-```given a basket with 10 cucumbers
-```when I take 4 cucumbers
-```then I have 6 cucumbers left in the basket
+```
+given a basket with 10 cucumbers
+when I take 4 cucumbers
+then I have 6 cucumbers left in the basket
+```
 
 The you develop your stepdefs accordingly:
 ```groovy
