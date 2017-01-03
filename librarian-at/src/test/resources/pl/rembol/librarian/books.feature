@@ -8,7 +8,7 @@ Scenario: Adding a book
   Then book Dune can be found in library
   And book Dune can be borrowed
 
-Scenario: Adding a book
+Scenario: Borrowed book can't be borrowed
   Given a new client called RemboL
   And a new book Dune by Frank Herbert is added
   When RemboL borrows book Dune

@@ -47,7 +47,7 @@
             };
             Blockly.JavaScript[stepdef.message0] = function (block) {
                 var text = stepdef.message0;
-                for (var i = 1; i <= block.inputList.length; i++) {
+                for (var i = 1; i <= stepdef.args0.length; i++) {
                     text = text.replace('%' + i, block.getFieldValue('ARG' + i));
                 }
                 return [text, Blockly.JavaScript.ORDER_MEMBER];

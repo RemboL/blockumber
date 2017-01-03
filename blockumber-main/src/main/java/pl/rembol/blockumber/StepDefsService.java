@@ -1,11 +1,17 @@
 package pl.rembol.blockumber;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -25,10 +31,12 @@ import cucumber.runtime.xstream.LocalizedXStreams;
 @Service
 class StepDefsService {
 
-    private static final Map<String, String> knownPatterns = new HashMap<>();
+    private static final Map<String, Function<String, Map<String, Object>>> knownPatterns = new LinkedHashMap<>();
 
     static {
-        knownPatterns.put("(.*)", "String");
+        knownPatterns.put("\\(\\.\\*\\)", StepDefsService::stringArgumentDefinition);
+        knownPatterns.put("\\(\\\\d\\+\\)", StepDefsService::integerArgumentDefinition);
+        knownPatterns.put("\\([^\\|\\)]+(\\|[^\\|\\)]+)*\\)", StepDefsService::dropdownArgumentDefinition);
     }
 
     private final List<Map<String, Object>> stepDefinitions = new ArrayList<>();
@@ -57,6 +65,7 @@ class StepDefsService {
         stepDefinitions.stream().map(this::mapStepDefinition).forEach(this.stepDefinitions::add);
 
         scenarioDefinitions.add(createFeatureDefinition());
+        scenarioDefinitions.add(createBackgroundDefinition());
         scenarioDefinitions.add(createScenarioDefinition());
 
         tagDefinitions.add(createTagDefinition("Given", 240));
@@ -79,21 +88,27 @@ class StepDefsService {
 
     private Map<String, Object> mapStepDefinition(StepDefinition stepDefinition) {
         Map<String, Object> blockDefinition = new HashMap<>();
-        List<Map<String, String>> argumentDefiitions = new ArrayList<>();
+        List<Map<String, Object>> argumentDefiitions = new ArrayList<>();
 
         String pattern = stepDefinition.getPattern();
+        if (pattern.startsWith("^")) {
+            pattern = pattern.replace("^", "");
+        }
+        if (pattern.endsWith("$")) {
+            pattern = pattern.replace("$", "");
+        }
         int argumentIndex;
         int argumentCount = 0;
         while ((argumentIndex = pattern.indexOf("(")) != -1) {
             for (String argumentPattern : knownPatterns.keySet()) {
-                if (pattern.substring(argumentIndex).startsWith(argumentPattern)) {
+                Matcher matcher = Pattern.compile(argumentPattern).matcher(pattern.substring(argumentIndex));
+                if (matcher.find()) {
+                    String matched = matcher.group();
                     argumentCount++;
-                    pattern = pattern.replace(argumentPattern, "%" + argumentCount);
-                    Map<String, String> argumentDefinition = new HashMap<>();
-                    argumentDefinition.put("type", "field_input");
+                    pattern = pattern.replaceFirst(argumentPattern, "%" + argumentCount);
+                    Map<String, Object> argumentDefinition = knownPatterns.get(argumentPattern).apply(matched);
                     argumentDefinition.put("name", "ARG" + argumentCount);
-                    argumentDefinition.put("check", knownPatterns.get(argumentPattern));
-                    argumentDefinition.put("text", "");
+
                     argumentDefiitions.add(argumentDefinition);
                     break;
                 }
@@ -104,6 +119,30 @@ class StepDefsService {
         blockDefinition.put("args0", argumentDefiitions);
         blockDefinition.put("output", "String");
         return blockDefinition;
+    }
+
+    private static Map<String, Object> stringArgumentDefinition(String pattern) {
+        Map<String, Object> argumentDefinition = new HashMap<>();
+        argumentDefinition.put("type", "field_input");
+        argumentDefinition.put("check", "String");
+        argumentDefinition.put("text", "");
+        return argumentDefinition;
+    }
+
+    private static Map<String, Object> integerArgumentDefinition(String pattern) {
+        Map<String, Object> argumentDefinition = new HashMap<>();
+        argumentDefinition.put("type", "field_input");
+        argumentDefinition.put("check", "Number");
+        argumentDefinition.put("text", "");
+        return argumentDefinition;
+    }
+
+    private static Map<String, Object> dropdownArgumentDefinition(String pattern) {
+        Map<String, Object> argumentDefinition = new HashMap<>();
+        List<String> options = Arrays.asList(pattern.replaceAll("[\\(\\)]", "").split("\\|"));
+        argumentDefinition.put("type", "field_dropdown");
+        argumentDefinition.put("options", options.stream().map(option -> Arrays.asList(option, option)).collect(Collectors.toList()));
+        return argumentDefinition;
     }
 
     private Map<String, Object> createFeatureDefinition() {
@@ -150,6 +189,31 @@ class StepDefsService {
         scenarioDefinition.put("previousStatement", "Action");
 
         scenarioDefinition.put("colour", 64);
+
+        return scenarioDefinition;
+    }
+
+    private Map<String, Object> createBackgroundDefinition() {
+        Map<String, Object> scenarioDefinition = new HashMap<>();
+
+        scenarioDefinition.put("message0", "Background: ");
+
+        Map<String, String> nameDefinition = new HashMap<>();
+        nameDefinition.put("type", "field_label");
+        nameDefinition.put("name", "NAME");
+        nameDefinition.put("check", "string");
+        nameDefinition.put("text", "");
+        Map<String, String> bodyDefinition = new HashMap<>();
+        bodyDefinition.put("type", "input_statement");
+        bodyDefinition.put("name", "BODY");
+
+        scenarioDefinition.put("args0", Collections.singletonList(nameDefinition));
+        scenarioDefinition.put("message1", "%1");
+        scenarioDefinition.put("args1", Collections.singletonList(bodyDefinition));
+        scenarioDefinition.put("nextStatement", "Action");
+        scenarioDefinition.put("previousStatement", "Action");
+
+        scenarioDefinition.put("colour", 270);
 
         return scenarioDefinition;
     }

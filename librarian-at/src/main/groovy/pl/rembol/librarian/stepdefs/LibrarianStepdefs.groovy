@@ -39,7 +39,7 @@ Then(~"book (.*) can be found in library") { String name ->
     assert bookActions.canBeFound(name)
 }
 
-Then(~/^book (.*) (can|can't) be borrowed$/) { String name, String can ->
+Then(~"book (.*) (can|can't) be borrowed") { String name, String can ->
     assert bookActions.canBeBorrowed(name) == (can == 'can')
 }
 
@@ -47,7 +47,7 @@ When(~"(.*) borrows book (.*)") { String client, String book ->
     borrowActions.borrow(client, book)
 }
 
-When(~"^we search books by author (.*)") { String author ->
+When(~"we search books by author (.*)") { String author ->
     bookActions.searchByAuthor(author)
 }
 
