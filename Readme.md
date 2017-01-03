@@ -17,9 +17,9 @@ Usual reason is that business is usually either not elastic enough to understand
 I'll give you an example.
 
 Product owner provides you with a scenario that they want to test:
-> given a basket with 10 cucumbers
-> when I take 4 cucumbers
-> then I have 6 cucumbers left in the basket
+```given a basket with 10 cucumbers
+```when I take 4 cucumbers
+```then I have 6 cucumbers left in the basket
 
 The you develop your stepdefs accordingly:
 ```groovy
@@ -30,13 +30,17 @@ Then(~'I have (\\d+) cucumbers left in the basket') { ... }
 All is peachy, devs are happy because they automated the oh-so-important cucumber/basket logic, PO's happy because he can now in his [editor] create scenarios that will run automatically.
 
 But the PO starts to think about other scenarios:
-> given a basket with 10 cucumbers
-> when I take 10 cucumbers
-> then I have an empty basket
+```
+given a basket with 10 cucumbers
+when I take 10 cucumbers
+then I have an empty basket
+```
 
-> given a basket with 10 cucumbers and a tomato
-> when I take 4 cucumbers
-> then I have veggie salad left in the basket
+```
+given a basket with 10 cucumbers and a tomato
+when I take 4 cucumbers
+then I have veggie salad left in the basket
+```
 
 Now two things can happen:
 * either product owner notices that tests are red because he is not hitting exact step expressions and he gets angry at limitations of the tools provided
