@@ -14,17 +14,22 @@
 
     <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
     <xml id="toolbox" style="display: none">
-        <block type="controls_if"></block>
-        <block type="controls_repeat_ext"></block>
-        <block type="logic_compare"></block>
-        <block type="math_number"></block>
-        <block type="math_arithmetic"></block>
-        <block type="text"></block>
-        <block type="text_print"></block>
+        <th:block th:each="stepdef : ${stepdefs}"><block th:attr="type=${stepdef.message0}"/></th:block>
     </xml>
-    <script>
-      var workspace = Blockly.inject('blocklyDiv',
-          {toolbox: document.getElementById('toolbox')});
+    <script th:inline="javascript">
+        var stepdefs = /*[[${stepdefs}]]*/ [];
+        /*<![CDATA[*/
+        for (var i = 0; i < stepdefs.length; i++) {
+            const stepdef = stepdefs[i];
+            Blockly.Blocks[stepdef.message0] = {
+                init: function () {
+                    this.jsonInit(stepdef);
+                }
+            };
+        }
+        var workspace = Blockly.inject('blocklyDiv',
+                {toolbox: document.getElementById('toolbox')});
+        /*]]>*/
     </script>
 </body>
 </html>
