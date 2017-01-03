@@ -11,6 +11,7 @@ buildscript {
 }
 
 dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.3'
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'org.springframework.boot:spring-boot-starter-web'
@@ -21,7 +22,6 @@ dependencies {
     compile("io.rest-assured:rest-assured:3.0.1")
     testCompile("junit:junit:4.12")
 }
-
 configurations {
     cucumberRuntime {
         extendsFrom testRuntime
@@ -37,7 +37,7 @@ task cucumber() {
     doLast {
         javaexec {
             main = "cucumber.api.cli.Main"
-            classpath = configurations.cucumberRuntime
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
             args = ['--plugin', 'pretty', '--glue', 'src/main/groovy', 'src/test/resources']
 
         }

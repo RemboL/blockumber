@@ -16,6 +16,7 @@ build/
 *.iml
 .settings/
 .idea/
+.gradle/
 
 # video files
 *.avi

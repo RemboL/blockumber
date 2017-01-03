@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <title>HELLO</title>
@@ -9,8 +9,6 @@
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
 
-    <h4>Here Be Report!</h4>
-    <p th:text="#{hello}"></p>
-    <p th:text="#{report}"></p>
+    <p th:utext="${report}"></p>
 </body>
 </html>
