@@ -20,12 +20,16 @@ public class RunController {
         Path reportTestFile = Files.createTempFile("testRun", ".txt");
         System.out.println(reportTestFile.toAbsolutePath().toString());
 
-        Main.main(new String[] { "--plugin", "pretty:"+reportTestFile.toAbsolutePath().toString(), "--glue", "src/main/groovy", "src/test/resources" });
+        Main.run(new String[]{
+                        "--plugin", "pretty:" + reportTestFile.toAbsolutePath().toString(),
+                        "--glue", "src/main/groovy",
+                        "src/test/resources"},
+                Thread.currentThread().getContextClassLoader());
 
         List<String> report = Files.readAllLines(reportTestFile);
         model.addAttribute("report", StringUtils.join(report, "<br/>"));
-        System.out.println(StringUtils.join(report, "<br/>"));
-        return "index";
+        model.addAttribute("hello", "world");
+        return "report";
     }
 
 }
