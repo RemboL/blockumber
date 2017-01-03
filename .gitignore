@@ -1,0 +1,29 @@
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+
+# Compiled projects #
+target/
+build/
+
+# project files
+.project
+.classpath
+*.iml
+.settings/
+.idea/
+
+# video files
+*.avi
+
+# auto-deployed libraries
+*.dll
+*.so
+
+# blend backup files
+*.blend1
+*.blend2
