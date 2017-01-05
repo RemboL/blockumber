@@ -80,11 +80,12 @@ ToDos:
 * ~~run scenario created from blocks~~
 * ~~display report nicely~~
 * ~~expand test scenarios~~
-* saving scenarios
-* loading scenarios
+* ~~write a proper readme~~
+* ~~saving scenarios~~
+* ~~loading scenarios~~
 * make it more configuratble
 * group stepdefs by source
-* ~~write a proper readme~~
+* release it
 
 [blockly]: https://developers.google.com/blockly
 [behavior-driven development]: https://en.wikipedia.org/wiki/Behavior-driven_development

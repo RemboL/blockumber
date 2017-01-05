@@ -15,10 +15,10 @@
     <table>
         <tr>
             <td width="50%">
-                <div id="blocklyDiv" style="height: 480px; width: 800px;"></div>
+                <div id="blocklyDiv" style="height: 720px; width: 800px;"></div>
             </td>
             <td>
-                <div id="scenarioOutput" style="font-family: 'Courier New'; vertical-align: top"></div>
+                <div id="scenarioOutput" style="height: 720px; font-family: 'Courier New'; overflow-y:auto;"></div>
             </td>
         </tr>
     </table>
@@ -77,8 +77,9 @@
             };
             Blockly.JavaScript[scenariodef.message0] = function (block) {
                 var text = scenariodef.message0.replace('%1', block.getFieldValue('NAME'));
-                text += '\n\n';
+                text += '\n';
                 text += Blockly.JavaScript.statementToCode(block, 'BODY', Blockly.JavaScript.ORDER_NONE) || '';
+                text += '\n';
                 return text;
             };
         }
@@ -97,16 +98,24 @@
             Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
             var code = Blockly.JavaScript.workspaceToCode(workspace);
 
+            document.getElementById('scenarioOutput').innerHTML = "Starting scenario...";
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "blockumber/run", true);
             xhr.onreadystatechange = function () {
-                document.getElementById('scenarioOutput').innerHTML = this.responseText;
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    if (xhr.responseText) {
+                        document.getElementById('scenarioOutput').innerHTML = this.responseText;
+                    }
+                }
             };
             xhr.send(code);
         }
         function save() {
-            var xml = Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace()));
-            alert(xml);
+            var code = Blockly.JavaScript.workspaceToCode(workspace);
+            var link = document.createElement("a");
+            link.download = "test.feature";
+            link.href = "data:text/plain,"+encodeURIComponent(code);
+            link.click();
         }
         function load() {
             var input = $(document.createElement('input'));

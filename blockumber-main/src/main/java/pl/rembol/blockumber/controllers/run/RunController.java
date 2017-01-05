@@ -30,6 +30,10 @@ class RunController {
     private String prettify(String report) {
         return report
                 .replaceAll(" ", "&nbsp;")
+                .replaceAll("\u001B\\[36m\u001B\\[1m", "<span style=\"color:#00ffff\">")
+                .replaceAll("\u001B\\[36m", "<span style=\"color:#009999\">")
+                .replaceAll("\u001B\\[33m\u001B\\[1m", "<span style=\"color:#ffff00\">")
+                .replaceAll("\u001B\\[33m", "<span style=\"color:#cccc00\">")
                 .replaceAll("\u001B\\[32m\u001B\\[1m", "<span style=\"color:#00ff55\">")
                 .replaceAll("\u001B\\[32m", "<span style=\"color:#009933\">")
                 .replaceAll("\u001B\\[31m\u001B\\[1m", "<span style=\"color:#ff0000\">")

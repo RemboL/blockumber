@@ -39,7 +39,7 @@ class StepDefConverter {
         while ((argumentIndex = message.indexOf("(")) != -1) {
             for (String argumentPattern : knownPatterns.keySet()) {
                 Matcher matcher = Pattern.compile(argumentPattern).matcher(message.substring(argumentIndex));
-                if (matcher.find()) {
+                if (matcher.find() && matcher.start() == 0) {
                     String matched = matcher.group();
                     argumentCount++;
                     message = message.replaceFirst(argumentPattern, "%" + argumentCount);
