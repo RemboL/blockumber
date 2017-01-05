@@ -1,13 +1,14 @@
-package pl.rembol.blockumber;
-
-import cucumber.api.cli.Main;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+package pl.rembol.blockumber.controllers.run;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import cucumber.api.cli.Main;
 
 @Service
 class RunService {

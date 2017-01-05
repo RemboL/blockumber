@@ -1,19 +1,14 @@
-package pl.rembol.blockumber;
+package pl.rembol.blockumber.stepdefs;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,15 +24,7 @@ import cucumber.runtime.io.ResourceLoaderClassFinder;
 import cucumber.runtime.xstream.LocalizedXStreams;
 
 @Service
-class StepDefsService {
-
-    private static final Map<String, Function<String, Map<String, Object>>> knownPatterns = new LinkedHashMap<>();
-
-    static {
-        knownPatterns.put("\\(\\.\\*\\)", StepDefsService::stringArgumentDefinition);
-        knownPatterns.put("\\(\\\\d\\+\\)", StepDefsService::integerArgumentDefinition);
-        knownPatterns.put("\\([^\\|\\)]+(\\|[^\\|\\)]+)*\\)", StepDefsService::dropdownArgumentDefinition);
-    }
+public class BlockDefinitionsService {
 
     private final List<Map<String, Object>> stepDefinitions = new ArrayList<>();
 
@@ -45,11 +32,34 @@ class StepDefsService {
 
     private final List<Map<String, Object>> scenarioDefinitions = new ArrayList<>();
 
-    @Value("${blockumber.glue:src/main/groovy}")
-    private String gluePath;
+    private final String gluePath;
+
+    @Autowired
+    BlockDefinitionsService(@Value("${blockumber.glue:src/main/groovy}") String gluePath) {
+        this.gluePath = gluePath;
+    }
 
     @PostConstruct
-    void findStepDefs() {
+    void setup() {
+        List<StepDefinition> stepDefinitions = findStepDefinitions();
+        StepDefConverter stepDefConverter = new StepDefConverter();
+
+        stepDefinitions.stream()
+                .map(StepDefinition::getPattern)
+                .map(stepDefConverter::mapStepDefinitionPattern)
+                .forEach(this.stepDefinitions::add);
+
+        scenarioDefinitions.add(createFeatureDefinition());
+        scenarioDefinitions.add(createBackgroundDefinition());
+        scenarioDefinitions.add(createScenarioDefinition());
+
+        tagDefinitions.add(createTagDefinition("Given", 240));
+        tagDefinitions.add(createTagDefinition("When", 210));
+        tagDefinitions.add(createTagDefinition("Then", 180));
+        tagDefinitions.add(createTagDefinition("And", 150));
+    }
+
+    private List<StepDefinition> findStepDefinitions() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         RuntimeGlue glue = new RuntimeGlue(new UndefinedStepsTracker(), new LocalizedXStreams(classLoader));
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
@@ -62,87 +72,19 @@ class StepDefsService {
         }
         List<StepDefinition> stepDefinitions = new ArrayList<>();
         glue.reportStepDefinitions(stepDefinitions::add);
-        stepDefinitions.stream().map(this::mapStepDefinition).forEach(this.stepDefinitions::add);
-
-        scenarioDefinitions.add(createFeatureDefinition());
-        scenarioDefinitions.add(createBackgroundDefinition());
-        scenarioDefinitions.add(createScenarioDefinition());
-
-        tagDefinitions.add(createTagDefinition("Given", 240));
-        tagDefinitions.add(createTagDefinition("When", 210));
-        tagDefinitions.add(createTagDefinition("Then", 180));
-        tagDefinitions.add(createTagDefinition("And", 150));
-    }
-
-    List<Map<String, Object>> getStepDefs() {
         return stepDefinitions;
     }
 
-    List<Map<String, Object>> getTagDefs() {
+    public List<Map<String, Object>> getStepDefs() {
+        return stepDefinitions;
+    }
+
+    public List<Map<String, Object>> getTagDefs() {
         return tagDefinitions;
     }
 
-    List<Map<String, Object>> getScenarioDefs() {
+    public List<Map<String, Object>> getScenarioDefs() {
         return scenarioDefinitions;
-    }
-
-    private Map<String, Object> mapStepDefinition(StepDefinition stepDefinition) {
-        Map<String, Object> blockDefinition = new HashMap<>();
-        List<Map<String, Object>> argumentDefiitions = new ArrayList<>();
-
-        String pattern = stepDefinition.getPattern();
-        if (pattern.startsWith("^")) {
-            pattern = pattern.replace("^", "");
-        }
-        if (pattern.endsWith("$")) {
-            pattern = pattern.replace("$", "");
-        }
-        int argumentIndex;
-        int argumentCount = 0;
-        while ((argumentIndex = pattern.indexOf("(")) != -1) {
-            for (String argumentPattern : knownPatterns.keySet()) {
-                Matcher matcher = Pattern.compile(argumentPattern).matcher(pattern.substring(argumentIndex));
-                if (matcher.find()) {
-                    String matched = matcher.group();
-                    argumentCount++;
-                    pattern = pattern.replaceFirst(argumentPattern, "%" + argumentCount);
-                    Map<String, Object> argumentDefinition = knownPatterns.get(argumentPattern).apply(matched);
-                    argumentDefinition.put("name", "ARG" + argumentCount);
-
-                    argumentDefiitions.add(argumentDefinition);
-                    break;
-                }
-            }
-        }
-        blockDefinition.put("message0", pattern);
-        blockDefinition.put("colour", 125);
-        blockDefinition.put("args0", argumentDefiitions);
-        blockDefinition.put("output", "String");
-        return blockDefinition;
-    }
-
-    private static Map<String, Object> stringArgumentDefinition(String pattern) {
-        Map<String, Object> argumentDefinition = new HashMap<>();
-        argumentDefinition.put("type", "field_input");
-        argumentDefinition.put("check", "String");
-        argumentDefinition.put("text", "");
-        return argumentDefinition;
-    }
-
-    private static Map<String, Object> integerArgumentDefinition(String pattern) {
-        Map<String, Object> argumentDefinition = new HashMap<>();
-        argumentDefinition.put("type", "field_input");
-        argumentDefinition.put("check", "Number");
-        argumentDefinition.put("text", "");
-        return argumentDefinition;
-    }
-
-    private static Map<String, Object> dropdownArgumentDefinition(String pattern) {
-        Map<String, Object> argumentDefinition = new HashMap<>();
-        List<String> options = Arrays.asList(pattern.replaceAll("[\\(\\)]", "").split("\\|"));
-        argumentDefinition.put("type", "field_dropdown");
-        argumentDefinition.put("options", options.stream().map(option -> Arrays.asList(option, option)).collect(Collectors.toList()));
-        return argumentDefinition;
     }
 
     private Map<String, Object> createFeatureDefinition() {
@@ -196,7 +138,7 @@ class StepDefsService {
     private Map<String, Object> createBackgroundDefinition() {
         Map<String, Object> scenarioDefinition = new HashMap<>();
 
-        scenarioDefinition.put("message0", "Background: ");
+        scenarioDefinition.put("message0", "Background:");
 
         Map<String, String> nameDefinition = new HashMap<>();
         nameDefinition.put("type", "field_label");

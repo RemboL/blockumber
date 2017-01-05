@@ -1,16 +1,18 @@
-package pl.rembol.blockumber;
+package pl.rembol.blockumber.controllers.index;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import pl.rembol.blockumber.stepdefs.BlockDefinitionsService;
+
 @Controller
 @RequestMapping("/blockumber")
 class IndexController {
 
     @Autowired
-    private StepDefsService stepDefsService;
+    private BlockDefinitionsService stepDefsService;
 
     @RequestMapping
     String get(ModelMap model) {

@@ -104,11 +104,46 @@
             };
             xhr.send(code);
         }
+        function save() {
+            var xml = Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace()));
+            alert(xml);
+        }
+        function load() {
+            var input = $(document.createElement('input'));
+            input.attr("type", "file");
+            input.on('change', function () {
+                var file = input[0].files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.readAsText(file, "UTF-8");
+                    reader.onload = function (evt) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("POST", "blockumber/xml/fromFeature", true);
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState == 4 && xhr.status == 200) {
+                                if (xhr.responseText) {
+                                    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(this.responseText), Blockly.getMainWorkspace());
+                                }
+                            }
+                        };
+                        xhr.send(evt.target.result);
+                    };
+                    reader.onerror = function (evt) {
+                        alert('error loading file')
+                    }
+                } else {
+                    alert('error locating file');
+                }
+            });
+            input.trigger('click');
+        }
         /*]]>*/
     </script>
     <p>
         <button onClick="showCode();">Show</button>
         <button onClick="runScenario();">Run</button>
+        <button onClick="save();">Save</button>
+        <button onClick="load();">Load</button>
     </p>
 </body>
 </html>

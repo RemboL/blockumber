@@ -1,3 +1,5 @@
+apply plugin: 'groovy'
+
 ext {
     springBootVersion = '1.3.3.RELEASE'
     thymeleafVersion = '2.1.4.RELEASE'
@@ -7,7 +9,9 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
     compile "org.thymeleaf:thymeleaf-spring4:$thymeleafVersion"
+    compile 'com.thoughtworks.xstream:xstream:1.4.9'
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'info.cukes:cucumber-core:1.2.5'
     testCompile 'junit:junit:4.12'
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4-rc-3'
 }

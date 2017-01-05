@@ -1,7 +1,5 @@
-package pl.rembol.blockumber;
+package pl.rembol.blockumber.controllers.run;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.util.StringUtils;
-
-import cucumber.api.cli.Main;
 
 @RestController
 @RequestMapping("/blockumber/run")
