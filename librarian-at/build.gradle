@@ -12,6 +12,7 @@ buildscript {
 
 dependencies {
     compile project(':blockumber-main')
+//   compile 'pl.rembol.blockumber:blockumber-main:0.0.1'
     compile 'org.codehaus.groovy:groovy-all:2.4.3'
     compile("info.cukes:cucumber-groovy:1.2.5")
     compile("io.rest-assured:rest-assured:3.0.1")

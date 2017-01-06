@@ -5,6 +5,7 @@ ext {
     thymeleafVersion = '2.1.4.RELEASE'
 }
 
+
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
@@ -14,4 +15,52 @@ dependencies {
     compile 'info.cukes:cucumber-core:1.2.5'
     testCompile 'junit:junit:4.12'
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4-rc-3'
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+    }
+}
+
+group = 'pl.rembol.blockumber'
+version = '0.0.1'
+
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'java'
+apply plugin: 'com.jfrog.bintray'
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            groupId 'pl.rembol.blockumber'
+            artifactId 'blockumber-main'
+            version '0.0.1'
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    publications = ['MyPublication']
+    pkg {
+        repo = 'blockumber'
+        name = 'blockumber-main'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/RemboL/blockumber.git'
+        publicDownloadNumbers = true
+        version {
+            name = '0.0.1'
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
 }
