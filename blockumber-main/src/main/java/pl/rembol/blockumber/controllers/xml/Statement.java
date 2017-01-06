@@ -2,7 +2,7 @@ package pl.rembol.blockumber.controllers.xml;
 
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
-public class Statement {
+class Statement {
 
     @XStreamAsAttribute
     private String name;

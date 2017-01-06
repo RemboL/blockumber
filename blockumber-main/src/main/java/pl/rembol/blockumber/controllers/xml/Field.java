@@ -6,7 +6,7 @@ import com.thoughtworks.xstream.converters.extended.ToAttributedValueConverter;
 
 @XStreamAlias("field")
 @XStreamConverter(value= ToAttributedValueConverter.class, strings = {"value"})
-public class Field {
+class Field {
     private String name;
 
     private String value;

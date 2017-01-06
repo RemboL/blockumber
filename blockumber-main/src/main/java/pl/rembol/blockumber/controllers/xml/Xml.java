@@ -7,7 +7,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 @XStreamAlias("xml")
-public class Xml {
+class Xml {
     @XStreamImplicit
     private List<Block> block = new ArrayList<>();
 

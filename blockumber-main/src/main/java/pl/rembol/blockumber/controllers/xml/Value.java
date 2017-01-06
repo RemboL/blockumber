@@ -4,7 +4,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
 @XStreamAlias("value")
-public class Value {
+class Value {
     
     @XStreamAsAttribute
     private String name = "BODY";

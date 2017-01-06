@@ -9,7 +9,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 @XStreamAlias("block")
-public class Block {
+class Block {
 
     @XStreamAsAttribute
     private String type;
@@ -32,7 +32,7 @@ public class Block {
 
     private Next next;
 
-    public Block(String type) {
+    Block(String type) {
         this.type = type;
         this.id = UUID.randomUUID().toString();
     }
@@ -61,7 +61,7 @@ public class Block {
         return next != null;
     }
 
-    public Block getNextBlock() {
+    Block getNextBlock() {
         return next.getBlock();
     }
 
