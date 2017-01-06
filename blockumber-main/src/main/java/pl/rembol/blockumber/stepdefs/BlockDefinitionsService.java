@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,21 +29,23 @@ public class BlockDefinitionsService {
 
     private final List<Map<String, Object>> stepDefinitions = new ArrayList<>();
 
-    private final List<Map<String, Object>> tagDefinitions = new ArrayList<>();
+    private final List<Map<String, Object>> keywordsDefinitions = new ArrayList<>();
 
     private final List<Map<String, Object>> scenarioDefinitions = new ArrayList<>();
 
     private final String gluePath;
 
+    private final StepDefConverter stepDefConverter;
+
     @Autowired
-    BlockDefinitionsService(@Value("${blockumber.glue:src/main/groovy}") String gluePath) {
+    BlockDefinitionsService(@Value("${blockumber.glue:src/main/groovy}") String gluePath, StepDefConverter stepDefConverter) {
         this.gluePath = gluePath;
+        this.stepDefConverter = stepDefConverter;
     }
 
     @PostConstruct
     void setup() {
         List<StepDefinition> stepDefinitions = findStepDefinitions();
-        StepDefConverter stepDefConverter = new StepDefConverter();
 
         stepDefinitions.stream()
                 .map(StepDefinition::getPattern)
@@ -53,10 +56,10 @@ public class BlockDefinitionsService {
         scenarioDefinitions.add(createBackgroundDefinition());
         scenarioDefinitions.add(createScenarioDefinition());
 
-        tagDefinitions.add(createTagDefinition("Given", 240));
-        tagDefinitions.add(createTagDefinition("When", 210));
-        tagDefinitions.add(createTagDefinition("Then", 180));
-        tagDefinitions.add(createTagDefinition("And", 150));
+        keywordsDefinitions.add(createTagDefinition("Given", 240));
+        keywordsDefinitions.add(createTagDefinition("When", 210));
+        keywordsDefinitions.add(createTagDefinition("Then", 180));
+        keywordsDefinitions.add(createTagDefinition("And", 150));
     }
 
     private List<StepDefinition> findStepDefinitions() {
@@ -79,8 +82,8 @@ public class BlockDefinitionsService {
         return stepDefinitions;
     }
 
-    public List<Map<String, Object>> getTagDefs() {
-        return tagDefinitions;
+    public List<Map<String, Object>> getKeywordDefs() {
+        return keywordsDefinitions;
     }
 
     public List<Map<String, Object>> getScenarioDefs() {
@@ -175,5 +178,22 @@ public class BlockDefinitionsService {
         tagDefinition.put("args0", Collections.singletonList(bodyDefinition));
 
         return tagDefinition;
+    }
+
+    public void registerArgumentPattern(String regex, BiFunction<String, String, Map<String, Object>> mapper) {
+        stepDefConverter.registerArgumentPattern(regex, mapper);
+    }
+
+    public void resetStepDefinitions() {
+        List<StepDefinition> stepDefinitions = findStepDefinitions();
+
+        List<Map<String, Object>> newStepDefinitions = new ArrayList<>();
+        stepDefinitions.stream()
+                .map(StepDefinition::getPattern)
+                .map(stepDefConverter::mapStepDefinitionPattern)
+                .forEach(newStepDefinitions::add);
+
+        this.stepDefinitions.clear();
+        this.stepDefinitions.addAll(newStepDefinitions);
     }
 }

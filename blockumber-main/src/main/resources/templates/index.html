@@ -24,8 +24,8 @@
         <category name="Scenarios">
             <th:block th:each="scenariodef : ${scenariodefs}"><block th:attr="type=${scenariodef.message0}"/></th:block>
         </category>
-        <category name="Tags">
-            <th:block th:each="tagdef : ${tagdefs}"><block th:attr="type=${tagdef.message0}"/></th:block>
+        <category name="Given/When/Then">
+            <th:block th:each="keyworddef : ${keyworddefs}"><block th:attr="type=${keyworddef.message0}"/></th:block>
         </category>
         <category name="Steps">
             <th:block th:each="stepdef : ${stepdefs}"><block th:attr="type=${stepdef.message0}"/></th:block>
@@ -33,7 +33,7 @@
     </xml>
     <script th:inline="javascript">
         var stepdefs = /*[[${stepdefs}]]*/ [];
-        var tagdefs = /*[[${tagdefs}]]*/ [];
+        var keyworddefs = /*[[${keyworddefs}]]*/ [];
         var scenariodefs = /*[[${scenariodefs}]]*/ [];
         /*<![CDATA[*/
         for (var i = 0; i < stepdefs.length; i++) {
@@ -52,15 +52,15 @@
             };
         }
 
-        for (var i = 0; i < tagdefs.length; i++) {
-            const tagdef = tagdefs[i];
-            Blockly.Blocks[tagdef.message0] = {
+        for (var i = 0; i < keyworddefs.length; i++) {
+            const keyworddef = keyworddefs[i];
+            Blockly.Blocks[keyworddef.message0] = {
                 init: function () {
-                    this.jsonInit(tagdef);
+                    this.jsonInit(keyworddef);
                 }
             };
-            Blockly.JavaScript[tagdef.message0] = function (block) {
-                var text = tagdef.message0;
+            Blockly.JavaScript[keyworddef.message0] = function (block) {
+                var text = keyworddef.message0;
                 text = text.replace('%1', Blockly.JavaScript.valueToCode(block, 'BODY', Blockly.JavaScript.ORDER_NONE) || '');
                 return text + '\n';
             };

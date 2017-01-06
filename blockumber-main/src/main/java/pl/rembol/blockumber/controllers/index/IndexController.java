@@ -17,7 +17,7 @@ class IndexController {
     @RequestMapping
     String get(ModelMap model) {
         model.addAttribute("stepdefs", stepDefsService.getStepDefs());
-        model.addAttribute("tagdefs", stepDefsService.getTagDefs());
+        model.addAttribute("keyworddefs", stepDefsService.getKeywordDefs());
         model.addAttribute("scenariodefs", stepDefsService.getScenarioDefs());
 
         return "index";

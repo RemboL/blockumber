@@ -1,5 +1,7 @@
 package pl.rembol.blockumber.stepdefs;
 
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,12 +13,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-class StepDefConverter {
+@Component
+public class StepDefConverter {
 
-    private static final Map<String, BiFunction<String, String, Map<String, Object>>> knownPatterns = new 
+    private final Map<String, BiFunction<String, String, Map<String, Object>>> knownPatterns = new
             LinkedHashMap<>();
 
-    static {
+    StepDefConverter() {
         knownPatterns.put("\\(\\.\\*\\)", StepDefConverter::stringArgumentDefinition);
         knownPatterns.put("\\(\\\\d\\+\\)", StepDefConverter::integerArgumentDefinition);
         knownPatterns.put("\\([^\\|\\)]+(\\|[^\\|\\)]+)*\\)", StepDefConverter::dropdownArgumentDefinition);
@@ -87,4 +90,7 @@ class StepDefConverter {
         return argumentDefinition;
     }
 
+    void registerArgumentPattern(String regex, BiFunction<String, String, Map<String, Object>> mapper) {
+        knownPatterns.put(regex, mapper);
+    }
 }
