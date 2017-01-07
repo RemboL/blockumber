@@ -61,8 +61,37 @@ The repo is divided into three modules
 * librarian-at - separate module containing cucumber scenarios (Why? Because in my experience in big projects' ATs like to migrate to separate module and be run against living application)
 * blockumber-main - the meat behind it all
 
-To set up, you need follow the librarian-at example setup:
-* Create SpringBoot Application (like [so], do not mis the @EnableBlockumber annotation)
+## How to use?
+
+To set up, you need follow the librarian-at example.
+ * Configure your build script to download proper dependency from jCenter:
+
+``` gradle
+repositories {
+	jcenter()
+}
+dependencies {
+    compile 'pl.rembol.blockumber:blockumber-main:0.0.3'
+}
+```
+
+ * Create a bootRun main class in your project (or configure existing one):
+``` java
+@EnableBlockumber
+@SpringBootApplication
+public class Application extends SpringBootServletInitializer {
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+```
+ * Configure path to glue in your application properties:
+``` properties
+blockumber.glue=src/test/groovy
+```
+
 * run spring-boot
 * navigate browser to "localhost:{server.port}/blockumber"
 * be amazed
@@ -85,11 +114,10 @@ ToDos:
 * ~~loading scenarios~~
 * make it more configuratble
 * group stepdefs by source
-* release it
+* ~~release it~~
 
 [blockly]: https://developers.google.com/blockly
 [behavior-driven development]: https://en.wikipedia.org/wiki/Behavior-driven_development
 [90% of situations]: http://dilbert.com/strip/2008-05-08
 [editor]: https://en.wikipedia.org/wiki/Microsoft_Notepad
 [greening up the pipelines]: http://www.liquid-roof.com/images/painting2.jpg
-[so]: https://github.com/RemboL/blockumber/blob/master/librarian-at/src/main/java/pl/rembol/librarian/at/Application.java
