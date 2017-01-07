@@ -61,6 +61,10 @@ The repo is divided into three modules
 * librarian-at - separate module containing cucumber scenarios (Why? Because in my experience in big projects' ATs like to migrate to separate module and be run against living application)
 * blockumber-main - the meat behind it all
 
+Basically, at startup, Blockumber uses Cucumber to load up stepdefs from provided glue path and uses them to create custom Blockly blocks.
+
+So far Blockumber assumes that cucumber tests can be run without robust external configuration, simply with providing glue location or additional external properties.
+
 ## How to use?
 
 To set up, you need follow the librarian-at example.
@@ -96,11 +100,7 @@ blockumber.glue=src/test/groovy
 * navigate browser to "localhost:{server.port}/blockumber"
 * be amazed
 
-Basically, at startup, Blockumber uses Cucumber to load up stepdefs from provided glue path and uses them to create custom Blockly blocks. 
-
-So far Blockumber assumes that cucumber tests can be run without robust external configuration, simply with providing glue location or additional external properties.
-
-ToDos:
+## ToDos
 * ~~move controllers and stuff to blockumber-main and configure it using spring-boot annotations~~
 * ~~figure out why it stops after finishing cucumber~~
 * ~~display report~~
