@@ -114,6 +114,15 @@ blockumber.glue=src/test/groovy
 * ~~loading scenarios~~
 * make it more configuratble
 * group stepdefs by source
+* more patterns:
+  * (?:takes|is able to take)
+  * (months?|days?|hours?|minutes?)
+  * (.+)
+  * (\d+.?\d*)
+  * (not)?
+  * (\d+(?:.\d{1,2})?)
+  * days?
+* scenario outlines
 * ~~release it~~
 
 [blockly]: https://developers.google.com/blockly
