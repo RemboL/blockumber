@@ -1,33 +1,38 @@
 package pl.rembol.blockumber.stepdefs;
 
 import org.springframework.stereotype.Component;
+import pl.rembol.blockumber.stepdefs.blocks.BlockDefinition;
+import pl.rembol.blockumber.stepdefs.blocks.StepBlockDefinition;
+import pl.rembol.blockumber.stepdefs.blocks.arguments.ArgumentDefinition;
+import pl.rembol.blockumber.stepdefs.blocks.arguments.DecimalParameterDefinition;
+import pl.rembol.blockumber.stepdefs.blocks.arguments.DropdownParameterDefinition;
+import pl.rembol.blockumber.stepdefs.blocks.arguments.StringParameterDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Component
 public class StepDefConverter {
 
-    private final Map<String, BiFunction<String, String, Map<String, Object>>> knownPatterns = new
+    private final Map<String, BiFunction<String, String, ArgumentDefinition>> knownPatterns = new
             LinkedHashMap<>();
 
     StepDefConverter() {
         knownPatterns.put("\\(\\.\\*\\)", StepDefConverter::stringArgumentDefinition);
-        knownPatterns.put("\\(\\\\d\\+\\)", StepDefConverter::integerArgumentDefinition);
+        knownPatterns.put("\\(\\\\d\\+\\)", StepDefConverter::decimalArgumentDefinition);
+        knownPatterns.put("\\(\\\\d\\+\\.\\?\\\\d\\*\\)", StepDefConverter::decimalArgumentDefinition);
         knownPatterns.put("\\([^\\|\\)]+(\\|[^\\|\\)]+)*\\)", StepDefConverter::dropdownArgumentDefinition);
+        knownPatterns.put("\\([^\\|\\)]+(\\|[^\\|\\)]+)*\\)\\?", StepDefConverter::dropdownWithEmptyOptionArgumentDefinition);
     }
 
-    Map<String, Object> mapStepDefinitionPattern(String sourcePattern) {
-        Map<String, Object> blockDefinition = new HashMap<>();
-        List<Map<String, Object>> argumentDefiitions = new ArrayList<>();
+    StepBlockDefinition mapStepDefinitionPattern(String sourcePattern, Map<String, BlockDefinition> parameterDefinitions) {
+        List<ArgumentDefinition> argumentDefinitions = new ArrayList<>();
         String message = sourcePattern;
 
         if (message.startsWith("^")) {
@@ -46,51 +51,39 @@ public class StepDefConverter {
                     String matched = matcher.group();
                     argumentCount++;
                     message = message.replaceFirst(argumentPattern, "%" + argumentCount);
-                    Map<String, Object> argumentDefinition = knownPatterns.get(argumentPattern).apply(matched,
+                    ArgumentDefinition argumentDefinition = knownPatterns.get(argumentPattern).apply(matched,
                             "ARG" + argumentCount);
-                    argumentDefiitions.add(argumentDefinition);
+                    parameterDefinitions.put(argumentDefinition.getBlockType().getName(), argumentDefinition.getBlockType());
+                    argumentDefinitions.add(argumentDefinition);
                     continue while_loop;
                 }
             }
             break;
         }
-        blockDefinition.put("message0", message);
-        blockDefinition.put("colour", 125);
-        blockDefinition.put("args0", argumentDefiitions);
-        blockDefinition.put("output", "String");
-        blockDefinition.put("sourceRegex", sourcePattern);
-        return blockDefinition;
+        return new StepBlockDefinition(message, sourcePattern, argumentDefinitions);
     }
 
-    private static Map<String, Object> stringArgumentDefinition(String pattern, String argName) {
-        Map<String, Object> argumentDefinition = new HashMap<>();
-        argumentDefinition.put("type", "field_input");
-        argumentDefinition.put("check", "String");
-        argumentDefinition.put("text", "");
-        argumentDefinition.put("name", argName);
-        return argumentDefinition;
+
+
+    private static ArgumentDefinition stringArgumentDefinition(String pattern, String argName) {
+        return new ArgumentDefinition(argName, StringParameterDefinition.INSTANCE);
     }
 
-    private static Map<String, Object> integerArgumentDefinition(String pattern, String argName) {
-        Map<String, Object> argumentDefinition = new HashMap<>();
-        argumentDefinition.put("type", "field_input");
-        argumentDefinition.put("check", "Number");
-        argumentDefinition.put("text", "");
-        argumentDefinition.put("name", argName);
-        return argumentDefinition;
+    private static ArgumentDefinition decimalArgumentDefinition(String pattern, String argName) {
+        return new ArgumentDefinition(argName, DecimalParameterDefinition.INSTANCE);
     }
 
-    private static Map<String, Object> dropdownArgumentDefinition(String pattern, String argName) {
-        Map<String, Object> argumentDefinition = new HashMap<>();
+    private static ArgumentDefinition dropdownArgumentDefinition(String pattern, String argName) {
         List<String> options = Arrays.asList(pattern.replaceAll("[\\(\\)]", "").split("\\|"));
-        argumentDefinition.put("type", "field_dropdown");
-        argumentDefinition.put("options", options.stream().map(option -> Arrays.asList(option, option)).collect(
-                Collectors.toList()));
-        argumentDefinition.put("name", argName);
-        return argumentDefinition;
+        DropdownParameterDefinition parameterDefinition = new DropdownParameterDefinition(options);
+        return new ArgumentDefinition(argName, parameterDefinition);
+
     }
 
-    void registerArgumentPattern(String regex, BiFunction<String, String, Map<String, Object>> mapper) {
-        knownPatterns.put(regex, mapper);
+    private static ArgumentDefinition dropdownWithEmptyOptionArgumentDefinition(String pattern, String argName) {
+        List<String> options = Arrays.asList(pattern.replace("\\(", "").replace("\\)\\?", "").split("\\|"));
+        options.add("");
+        DropdownParameterDefinition parameterDefinition = new DropdownParameterDefinition(options);
+        return new ArgumentDefinition(argName, parameterDefinition);
     }
 }

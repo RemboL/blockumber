@@ -22,63 +22,38 @@
     </table>
     <xml id="toolbox" style="display: none">
         <category name="Scenarios">
-            <th:block th:each="scenariodef : ${scenariodefs}"><block th:attr="type=${scenariodef.message0}"/></th:block>
+            <th:block th:each="scenariodef : ${scenariodefs}"><block th:attr="type=${scenariodef.name}"/></th:block>
         </category>
         <category name="Given/When/Then">
-            <th:block th:each="keyworddef : ${keyworddefs}"><block th:attr="type=${keyworddef.message0}"/></th:block>
+            <th:block th:each="keyworddef : ${keyworddefs}"><block th:attr="type=${keyworddef.name}"/></th:block>
         </category>
         <category name="Steps">
-            <th:block th:each="stepdef : ${stepdefs}"><block th:attr="type=${stepdef.message0}"/></th:block>
+            <th:block th:each="stepdef : ${stepdefs}"><block th:attr="type=${stepdef.name}">
+                <th:block th:each="argdef : ${stepdef.args0}"><value th:attr="name=${argdef.name}" th:if="${argdef.blockType != null}"><block th:attr="type=${argdef.blockType.name}"></block></value></th:block>
+            </block></th:block>
+        </category>
+        <category name="Parameters">
+            <th:block th:each="paramdef : ${paramdefs}"><block th:attr="type=${paramdef.name}"/></th:block>
         </category>
     </xml>
     <script th:inline="javascript">
         var stepdefs = /*[[${stepdefs}]]*/ [];
         var keyworddefs = /*[[${keyworddefs}]]*/ [];
         var scenariodefs = /*[[${scenariodefs}]]*/ [];
+        var paramdefs = /*[[${paramdefs}]]*/ [];
         /*<![CDATA[*/
-        for (var i = 0; i < stepdefs.length; i++) {
-            const stepdef = stepdefs[i];
-            Blockly.Blocks[stepdef.message0] = {
-                init: function () {
-                    this.jsonInit(stepdef);
-                }
-            };
-            Blockly.JavaScript[stepdef.message0] = function (block) {
-                var text = stepdef.message0;
-                for (var i = 1; i <= stepdef.args0.length; i++) {
-                    text = text.replace('%' + i, block.getFieldValue('ARG' + i));
-                }
-                return [text, Blockly.JavaScript.ORDER_MEMBER];
-            };
-        }
 
-        for (var i = 0; i < keyworddefs.length; i++) {
-            const keyworddef = keyworddefs[i];
-            Blockly.Blocks[keyworddef.message0] = {
+        var blockdefs = stepdefs.concat(keyworddefs).concat(scenariodefs).concat(paramdefs);
+        for (var i = 0; i < blockdefs.length; i++) {
+            const blockdef = blockdefs[i];
+            Blockly.Blocks[blockdef.name] = {
                 init: function () {
-                    this.jsonInit(keyworddef);
+                    this.jsonInit(blockdef);
                 }
             };
-            Blockly.JavaScript[keyworddef.message0] = function (block) {
-                var text = keyworddef.message0;
-                text = text.replace('%1', Blockly.JavaScript.valueToCode(block, 'BODY', Blockly.JavaScript.ORDER_NONE) || '');
-                return text + '\n';
-            };
-        }
-
-        for (var i = 0; i < scenariodefs.length; i++) {
-            const scenariodef = scenariodefs[i];
-            Blockly.Blocks[scenariodef.message0] = {
-                init: function () {
-                    this.jsonInit(scenariodef);
-                }
-            };
-            Blockly.JavaScript[scenariodef.message0] = function (block) {
-                var text = scenariodef.message0.replace('%1', block.getFieldValue('NAME'));
-                text += '\n';
-                text += Blockly.JavaScript.statementToCode(block, 'BODY', Blockly.JavaScript.ORDER_NONE) || '';
-                text += '\n';
-                return text;
+            Blockly.JavaScript[blockdef.name] = function (block) {
+                var f = new Function("block", "blockdef", blockdef.javascript);
+                return f(block, blockdef);
             };
         }
 

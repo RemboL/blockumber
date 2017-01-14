@@ -15,4 +15,9 @@ class Value {
         this.block = block;
     }
 
+    Value(String name, Block block) {
+        this.name = name;
+        this.block = block;
+    }
+
 }

@@ -28,7 +28,8 @@ class Block {
 
     private Statement statement;
 
-    private Value value;
+    @XStreamImplicit
+    private List<Value> value = new ArrayList<>();
 
     private Next next;
 
@@ -54,7 +55,11 @@ class Block {
     }
 
     void addValueWithBlock(Block block) {
-        this.value = new Value(block);
+        this.value.add(new Value(block));
+    }
+
+    void addValueWithBlock(String name, Block block) {
+        this.value.add(new Value(name, block));
     }
 
     boolean hasNext() {

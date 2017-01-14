@@ -19,6 +19,7 @@ class IndexController {
         model.addAttribute("stepdefs", stepDefsService.getStepDefs());
         model.addAttribute("keyworddefs", stepDefsService.getKeywordDefs());
         model.addAttribute("scenariodefs", stepDefsService.getScenarioDefs());
+        model.addAttribute("paramdefs", stepDefsService.getParameterDefs());
 
         return "index";
     }

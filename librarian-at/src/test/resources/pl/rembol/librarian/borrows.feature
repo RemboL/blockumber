@@ -10,15 +10,20 @@ Scenario: Borrowing a book
   Then book Dune is amongst books borrowed by RemboL
   And RemboL can borrow 2 books
 
-Scenario: Trying to borrow already borrowed book
+Scenario Outline: Borrowing a book
   Given a new book Dune by Frank Herbert is added
+  And a new book Children of Dune by Frank Herbert is added
   And a new client called RemboL
   And a new client called Marcin
-  And RemboL borrows book Dune
-  When Marcin borrows book Dune
-  Then operation is refused with message 'book "Dune" is not available'
-  And book Dune is not amongst books borrowed by Marcin
-  And Marcin can borrow 3 books
+  And Marcin borrows book Children of Dune
+  When RemboL borrows book <book>
+  Then book <book> <is borrowed?> amongst books borrowed by RemboL
+  And RemboL can borrow <limit> books
+
+  Examples:
+    | book             | is borrowed? | limit |
+    | Dune             | is           | 2     |
+    | Children of Dune | is not       | 3     |
 
 Scenario: Borrowing doubled book
   Given a new book Dune by Frank Herbert is added

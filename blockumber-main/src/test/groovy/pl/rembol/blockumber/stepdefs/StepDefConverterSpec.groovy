@@ -87,6 +87,29 @@ class StepDefConverterSpec extends Specification {
             block['message0'] == 'stepdef\\$'
     }
 
+    def 'decimal parameter'() {
+        given:
+        String pattern = 'stepdef with (\\d+.?\\d*) parameter'
+        when:
+        Map<String, Object> block = stepDefConverter.mapStepDefinitionPattern(pattern)
+        then:
+        block['message0'] == 'stepdef with %1 parameter'
+        block['args0'].size() == 1
+        block['args0'][0]['check'] == 'Number'
+    }
+
+    def 'dropdown parameter with empty option'() {
+        given:
+        String pattern = 'stepdef with (is|is not)? parameter'
+        when:
+        Map<String, Object> block = stepDefConverter.mapStepDefinitionPattern(pattern)
+        then:
+        block['message0'] == 'stepdef with %1 parameter'
+        block['args0'].size() == 1
+        block['args0'][0]['type'] == 'field_dropdown'
+        block['args0'][0]['options'] == [['is', 'is'], ['is not', 'is not'], [''], ['']]
+    }
+
     def 'unrecognized regex'() {
         given:
             String pattern = 'unrecognized pattern (||)'

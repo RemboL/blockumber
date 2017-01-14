@@ -1,8 +1,5 @@
 package pl.rembol.blockumber.controllers.xml;
 
-import java.util.List;
-import java.util.Map;
-
 import gherkin.formatter.Formatter;
 import gherkin.formatter.model.Background;
 import gherkin.formatter.model.Examples;
@@ -10,10 +7,14 @@ import gherkin.formatter.model.Feature;
 import gherkin.formatter.model.Scenario;
 import gherkin.formatter.model.ScenarioOutline;
 import gherkin.formatter.model.Step;
+import pl.rembol.blockumber.stepdefs.blocks.StepBlockDefinition;
+import pl.rembol.blockumber.stepdefs.blocks.arguments.ArgumentDefinition;
+
+import java.util.List;
 
 class BlockBuilder implements Formatter {
 
-    private final List<Map<String, Object>> stepDefinitions;
+    private final List<StepBlockDefinition> stepDefinitions;
 
     private final Xml xml;
 
@@ -21,7 +22,7 @@ class BlockBuilder implements Formatter {
 
     private Block currentScenario;
 
-    BlockBuilder(List<Map<String, Object>> stepDefinitions, Xml xml) {
+    BlockBuilder(List<StepBlockDefinition> stepDefinitions, Xml xml) {
         this.stepDefinitions = stepDefinitions;
         this.xml = xml;
     }
@@ -32,7 +33,7 @@ class BlockBuilder implements Formatter {
 
     @Override
     public void feature(Feature feature) {
-        currentCucumberFeature = new Block("Feature: %1");
+        currentCucumberFeature = new Block("scenario.Feature");
         currentCucumberFeature.setPosition(100, 50);
         currentCucumberFeature.addField(new Field("NAME", feature.getName()));
 
@@ -41,13 +42,13 @@ class BlockBuilder implements Formatter {
 
     @Override
     public void background(Background background) {
-        currentScenario = new Block("Background:");
+        currentScenario = new Block("scenario.Background");
         currentCucumberFeature.addToStatement(currentScenario);
     }
 
     @Override
     public void scenario(Scenario scenario) {
-        currentScenario = new Block("Scenario: %1");
+        currentScenario = new Block("scenario.Scenario");
         currentScenario.addField(new Field("NAME", scenario.getName()));
         currentCucumberFeature.addToStatement(currentScenario);
     }
@@ -64,10 +65,10 @@ class BlockBuilder implements Formatter {
 
     @Override
     public void step(Step step) {
-        Block keywordBlock = new Block(step.getKeyword() + "%1");
+        Block keywordBlock = new Block("tag." + step.getKeyword().replaceAll(" ", ""));
         keywordBlock.addValueWithBlock(stepDefinitions
                 .stream()
-                .filter(stepDef -> step.getName().matches(stepDef.get("sourceRegex").toString()))
+                .filter(stepDef -> step.getName().matches(stepDef.getSourceRegex()))
                 .findFirst()
                 .map(stepDefinition -> mapStepDefinition(stepDefinition, step.getName()))
                 .orElse(new Block(step.getName())));
@@ -75,13 +76,14 @@ class BlockBuilder implements Formatter {
         currentScenario.addToStatement(keywordBlock);
     }
 
-    private Block mapStepDefinition(Map<String, Object> stepDefinition, String step) {
-        Block block = new Block(stepDefinition.get("message0").toString());
-        List<Map<String, Object>> argDefinitions = (List<Map<String, Object>>) stepDefinition.get("args0");
-        argDefinitions.stream().map(argDef -> argDef.get("name")).map(Object::toString).forEach(argName -> {
-            Integer count = new Integer(argName.replace("ARG", ""));
-            block.addField(new Field(argName,
-                    step.replaceFirst(stepDefinition.get("sourceRegex").toString(), "$" + count)));
+    private Block mapStepDefinition(StepBlockDefinition stepDefinition, String step) {
+        Block block = new Block("step." + stepDefinition.getSourceRegex());
+        List<ArgumentDefinition> argDefinitions = stepDefinition.getArgumentDefinitions();
+        argDefinitions.stream().forEach(argDef -> {
+            Integer count = new Integer(argDef.getName().replace("ARG", ""));
+            Block parameterBlock = new Block(argDef.getBlockType().getName());
+            parameterBlock.addField(new Field("VALUE", step.replaceFirst(stepDefinition.getSourceRegex(), "$" + count)));
+            block.addValueWithBlock(argDef.getName(), parameterBlock);
         });
         return block;
     }
