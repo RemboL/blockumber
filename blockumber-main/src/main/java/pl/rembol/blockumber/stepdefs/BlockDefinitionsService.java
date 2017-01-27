@@ -22,12 +22,14 @@ import cucumber.runtime.io.MultiLoader;
 import cucumber.runtime.io.ResourceLoader;
 import cucumber.runtime.io.ResourceLoaderClassFinder;
 import cucumber.runtime.xstream.LocalizedXStreams;
+import pl.rembol.blockumber.stepdefs.blocks.ExamplePlaceholderDefinition;
 import pl.rembol.blockumber.stepdefs.blocks.StepBlockDefinition;
 import pl.rembol.blockumber.stepdefs.blocks.scenarios.BackgroundDefinition;
 import pl.rembol.blockumber.stepdefs.blocks.BlockDefinition;
 import pl.rembol.blockumber.stepdefs.blocks.scenarios.FeatureDefinition;
 import pl.rembol.blockumber.stepdefs.blocks.scenarios.ScenarioDefinition;
 import pl.rembol.blockumber.stepdefs.blocks.TagDefinition;
+import pl.rembol.blockumber.stepdefs.blocks.scenarios.ScenarioOutlineDefinition;
 
 @Service
 public class BlockDefinitionsService {
@@ -58,10 +60,11 @@ public class BlockDefinitionsService {
                 .map(StepDefinition::getPattern)
                 .map(pattern -> stepDefConverter.mapStepDefinitionPattern(pattern, parameterDefinitions))
                 .forEach(this.stepDefinitions::add);
-
         scenarioDefinitions.add(new FeatureDefinition());
         scenarioDefinitions.add(new BackgroundDefinition());
         scenarioDefinitions.add(new ScenarioDefinition());
+        scenarioDefinitions.add(new ScenarioOutlineDefinition());
+        scenarioDefinitions.add(ExamplePlaceholderDefinition.INSTANCE);
 
         keywordsDefinitions.add(new TagDefinition("Given", 240));
         keywordsDefinitions.add(new TagDefinition("When", 210));
